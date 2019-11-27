@@ -50,7 +50,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.w3c.dom.Element;
 import org.w3c.tidy.Tidy;
 
-import lucene.CustomAnalyzer;
+import lucene.CustomStemmerAnalyzer;
 
 public class IndexFiles {
 
@@ -80,7 +80,10 @@ public class IndexFiles {
 			System.out.println("Indexing to directory '" + indexPath + "'...");
 
 			Directory dir = FSDirectory.open(Paths.get(indexPath));
-			IndexWriterConfig iwc = new IndexWriterConfig(new CustomAnalyzer());
+			
+			// CustomStemmerAnalyzer stems the words in the document before adding them to the index 
+			
+			IndexWriterConfig iwc = new IndexWriterConfig(new CustomStemmerAnalyzer());
 
 
 			iwc.setOpenMode(OpenMode.CREATE);

@@ -1,14 +1,14 @@
 package lucene;
 
 public class Main {
-	
+
 	public static void main(String args[]) {
-		
-		String indexLoc = "./index5";
+
+		String indexLoc = "./index";
 		String docLoc = "./";
-		
-		//get the document path
-		
+
+		//get the document path from command line 
+
 		if(args.length <= 0) {
 			System.out.println ("ERROR :: invalid arguments : enter the path to the document directory");
 		}
@@ -18,18 +18,25 @@ public class Main {
 		else {
 			docLoc = args[0];
 		}
-		
+
 		//call the indexer
+
 		IndexFiles indexer = new IndexFiles(indexLoc,docLoc);
+
 		//finish indexing
+
 		indexer.generateIndex();
-			//show query prompt
+
+		//show query prompt
+
 		SearchFiles searcher = new SearchFiles(indexLoc);
+
 		try {
-		searcher.querySearch();
+			searcher.querySearch();
 		}
 		catch (Exception e) {
 			System.out.println("Error occured while searching : "+e);
 		}
+
 	}
 }

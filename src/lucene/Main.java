@@ -8,6 +8,16 @@ public class Main {
 		String docLoc = "D:\\testLuciene";
 		//get the document path
 		
+		if(args.length <= 0) {
+			System.out.println ("ERROR :: invalid arguments : enter the path to the document directory");
+		}
+		else if (args.length > 1) {
+			System.out.println ("ERROR :: too many arguments : enter only the path to the document directory");
+		}
+		else {
+			docLoc = args[0];
+		}
+		
 		//call the indexer
 		IndexFiles indexer = new IndexFiles(indexLoc,docLoc);
 		//finish indexing

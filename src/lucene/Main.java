@@ -5,7 +5,8 @@ public class Main {
 	public static void main(String args[]) {
 		
 		String indexLoc = "./index5";
-		String docLoc = "D:\\testLuciene";
+		String docLoc = "./";
+		
 		//get the document path
 		
 		if(args.length <= 0) {

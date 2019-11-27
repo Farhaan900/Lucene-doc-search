@@ -50,36 +50,15 @@ public class SearchFiles {
   public void querySearch() throws Exception {
     String usage =
       "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
-//    if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
-//      System.out.println(usage);
-//      System.exit(0);
-//    }
 
     String index = "index";
     String field = "contents";
-    //field="C:\\Users\\Dev\\Desktop\\OVGU\\DKE\\IR\\project";
     index=this.indexLoc;
     String queries = null;
     int repeat = 0;
     boolean raw = false;
     String queryString = null;
     int hitsPerPage = 100;
-    
-//    for(int i = 0;i < args.length;i++) {
-//      if ("-index".equals(args[i])) {
-//        index = args[i+1];
-//        i++;
-//      } else if ("-field".equals(args[i])) {
-//        field = args[i+1];
-//        i++;
-//      } else if ("-queries".equals(args[i])) {
-//        queries = args[i+1];
-//        i++;
-//      } else if ("-query".equals(args[i])) {
-//        queryString = args[i+1];
-//        i++;
-//      }  
-//    }
     
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);

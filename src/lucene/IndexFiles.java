@@ -160,7 +160,7 @@ public class IndexFiles {
 
 						doc.add(new StringField("summary", summary,Field.Store.YES));
 						doc.add(new StringField("title", title,Field.Store.YES));
-						InputStream stream2 = new ByteArrayInputStream(summary.getBytes(StandardCharsets.UTF_8));
+						InputStream stream2 = new ByteArrayInputStream((summary).getBytes(StandardCharsets.UTF_8));
 						//doc.add(new TextField("contents",new BufferedReader(str), Field.Store.YES));
 						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream2, StandardCharsets.UTF_8))));
 
@@ -173,7 +173,12 @@ public class IndexFiles {
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 						// New index, so we just add the document (no old document can be there):
 						System.out.println("adding " + file);
+						try {
 						writer.addDocument(doc);
+						}
+						catch(Exception e) {
+							System.err.println(e);
+						}
 					} else {
 
 						System.out.println("updating " + file);

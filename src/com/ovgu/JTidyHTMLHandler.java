@@ -1,4 +1,4 @@
-package lucene;
+package com.ovgu;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,6 +37,27 @@ public class JTidyHTMLHandler {
             body = getText(children.item(0));
         }
         return body;
+    }
+    
+    protected String getSummary(Element rawDoc) {
+        if (rawDoc == null) {
+            return null;
+        }
+
+        String summary = "";
+        NodeList children = rawDoc.getElementsByTagName("summary");
+        if (children.getLength() > 0) {
+            summary = getText(children.item(0));
+        }
+        
+        if(summary.length()<1) {
+        	summary = getBody(rawDoc);
+        }
+        
+        if (summary.length()>100)
+        	return summary.substring(0,100);
+        else 
+        	return summary;
     }
 
     protected String getText(Node node) {

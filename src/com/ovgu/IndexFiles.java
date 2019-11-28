@@ -1,23 +1,4 @@
-
-
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package lucene;
-
+package com.ovgu;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -42,15 +23,13 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.w3c.dom.Element;
 import org.w3c.tidy.Tidy;
-
-import lucene.CustomStemmerAnalyzer;
 
 public class IndexFiles {
 
@@ -85,12 +64,12 @@ public class IndexFiles {
 			
 			IndexWriterConfig iwc = new IndexWriterConfig(new CustomStemmerAnalyzer());
 
-
 			iwc.setOpenMode(OpenMode.CREATE);
 
 			IndexWriter writer = new IndexWriter(dir, iwc);
 			indexDocs(writer, docDir);
 
+			// IGNORE THIS !!
 			// NOTE: if you want to maximize search performance,
 			//
 			// writer.forceMerge(1);
@@ -107,6 +86,13 @@ public class IndexFiles {
 		return 0;
 	}
 
+	/**
+	 * This part of the code indexes the documents 
+	 * 
+	 * @param writer
+	 * @param path
+	 * @throws IOException
+	 */
 	static void indexDocs(final IndexWriter writer, Path path) throws IOException {
 		if (Files.isDirectory(path)) {
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
@@ -124,6 +110,9 @@ public class IndexFiles {
 			indexDoc(writer, path, Files.getLastModifiedTime(path).toMillis());
 		}
 	}
+	
+	
+	
 	static Boolean IsTextOrHtmlFile(String FilePath) {
 		return FilePath.toLowerCase().endsWith(allowedFiles[0])||FilePath.toLowerCase().endsWith(allowedFiles[1])||FilePath.toLowerCase().endsWith(allowedFiles[2]);
 	}
@@ -131,6 +120,8 @@ public class IndexFiles {
 	static Boolean IsHtmlFile(String FilePath) {
 		return FilePath.toLowerCase().endsWith(allowedFiles[1])||FilePath.toLowerCase().endsWith(allowedFiles[2]);
 	}
+	
+	
 	/** Indexes a single document */
 	static void indexDoc(IndexWriter writer, Path file, long lastModified) throws IOException {
 
@@ -140,13 +131,13 @@ public class IndexFiles {
 					// make a new, empty document
 					Document doc = new Document();
 
-
 					Field pathField = new StringField("path", file.toString(), Field.Store.YES);
 					doc.add(pathField);
 
+//					System.out.println(Utilities.LongToDate(lastModified));
 					doc.add(new StringField("modified", Utilities.LongToDate(lastModified),Field.Store.YES));
 
-
+					// if its a html document do the following 
 					if(IsHtmlFile(file.toString())) {
 						Tidy tidy = new Tidy();
 						tidy.setQuiet(true);
@@ -155,17 +146,39 @@ public class IndexFiles {
 						Element rawDoc = root.getDocumentElement();
 						JTidyHTMLHandler handler=new JTidyHTMLHandler();
 
-						String summary = handler.getBody(rawDoc);
-						String title=handler.getTitle(rawDoc);
-
-						doc.add(new StringField("summary", summary,Field.Store.YES));
-						doc.add(new StringField("title", title,Field.Store.YES));
-						InputStream stream2 = new ByteArrayInputStream(summary.getBytes(StandardCharsets.UTF_8));
+						String summary;
+						String body = "";
+						String title;
+						String titleAndBody;
+						
+						try {
+						body = handler.getBody(rawDoc);
+						}
+						catch(Exception e) {
+						body = "Unreadble";	
+						}
+						title=handler.getTitle(rawDoc);
+						summary = handler.getSummary(rawDoc);
+						
+						titleAndBody = body; 
+						
+						System.out.println(summary);
+						doc.add(new StringField("body", body, Field.Store.YES));
+						doc.add(new StringField("summary", summary, Field.Store.YES));
+						doc.add(new StringField("title", title, Field.Store.YES));
+//						InputStream stream2 = new ByteArrayInputStream((title).getBytes(StandardCharsets.UTF_8));
+//						//doc.add(new TextField("contents",new BufferedReader(str), Field.Store.YES));
+//						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream2, StandardCharsets.UTF_8))));
+						
+						InputStream stream3 = new ByteArrayInputStream((titleAndBody).getBytes(StandardCharsets.UTF_8));
 						//doc.add(new TextField("contents",new BufferedReader(str), Field.Store.YES));
-						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream2, StandardCharsets.UTF_8))));
-
+						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream3, StandardCharsets.UTF_8))));
+						
+						doc.add(new StringField("type", "html", Field.Store.YES));
+						
 					}
 					else {
+						doc.add(new StringField("type", "txt", Field.Store.YES));
 						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))));
 
 					}
@@ -173,7 +186,12 @@ public class IndexFiles {
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
 						// New index, so we just add the document (no old document can be there):
 						System.out.println("adding " + file);
+						try {
 						writer.addDocument(doc);
+						}
+						catch (Exception e) {
+							System.out.println("ERROR ADDING FILE");
+						}
 					} else {
 
 						System.out.println("updating " + file);

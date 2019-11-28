@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package lucene;
+package com.ovgu;
 
 
 import java.io.BufferedReader;
@@ -47,6 +47,11 @@ public class SearchFiles {
 		this.indexLoc = indexLoc;
 	}
 
+	/**
+	 * This function searches for the query and displays the output.
+	 * 
+	 * @throws Exception
+	 */
 	public void querySearch() throws Exception {
 //		String usage = "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
 
@@ -61,6 +66,8 @@ public class SearchFiles {
 
 		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
 		IndexSearcher searcher = new IndexSearcher(reader);
+		
+		// Stemmer used to stem the query string 
 		Analyzer analyzer = new CustomStemmerAnalyzer();
 
 		BufferedReader in = null;
@@ -131,6 +138,10 @@ public class SearchFiles {
 		int start = 0;
 		int end = Math.min(numTotalHits, hitsPerPage);
 
+//		System.out.println("Rank\t | \tPath to file\t\t\t | \tLast Modified\t | \tScore\t |");
+		System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------");
+		System.out.format("|%-15s|%-75s|%-35s|%-15s|\n", "Rank", "Path to file", "Last modified", "Score");
+		System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------");
 		while (true) {
 			if (end > hits.length) {
 				System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
@@ -155,13 +166,20 @@ public class SearchFiles {
 				Document doc = searcher.doc(hits[i].doc);
 
 				String path = doc.get("path");
-				//String modified = doc.getField("modified").toString();
+				String modified = doc.get("modified").toString();
+				String title = doc.get("title");
+				String summary = doc.get("summary");
 				if (path != null) {
 
 					float score = hits[i].score;
-					System.out.println((i+1) + ". " + path+" Score:"+Float.toString(score));
-
-
+//					System.out.println((i+1) + "\t | \t" + path + "\t\t\t\t\t | \t"+modified+"\t | \t"+Float.toString(score)+"\t |");
+					System.out.format("|%-15s|%-75s|%-35s|%-15s|\n", (i+1), path, modified, Float.toString(score));
+					
+					if (doc.get("type").equals("html")) {
+					System.out.println("\t\tTITLE   : "+ title);
+					System.out.println("\t\tSUMMARY : "+ summary);
+//					System.out.println(doc.get("contents"));
+					}
 				} else {
 					System.out.println((i+1) + ". " + "No path for this document");
 				}

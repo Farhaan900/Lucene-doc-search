@@ -1,8 +1,7 @@
-package lucene;
+package com.ovgu;
 import java.text.DateFormat;  
 import java.text.SimpleDateFormat;  
 import java.util.Date;  
-import java.util.Calendar;  
 
 public class Utilities {
 	

@@ -33,7 +33,6 @@ public class SearchFiles {
 	public void querySearch() throws Exception {
 
 		String index = indexLoc;
-		String field = "contents";
 		index=this.indexLoc;
 		String queries = null;
 		boolean raw = false;
@@ -68,8 +67,6 @@ public class SearchFiles {
 			}
 
 			Query query = queryParser.parse(line);
-			System.out.println("Searching for: " + query.toString(field));
-
 			doPagingSearch(in, searcher, query, hitsPerPage, raw);
 
 		}

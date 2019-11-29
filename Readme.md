@@ -18,7 +18,7 @@ You can run the jar file with the following command
 java -jar indexerAndSearcher.jar <path_to_documents_folder>
 ```
 
-The output is in a tabular format. You might need a wide screen to view it in proper format.
+The output is in a tabular format. You might need a wide screen to view it in proper format. Results are displayed as batch files (15 results at a time). Press the enter key for the next set of results.
 For html files, it also displays the title and a summary in two new lines. If the html file doesnt have a summary tag then it prints the first 100 characters of its body.
 
 #### You can find files for testing in the "./test-docs" folder

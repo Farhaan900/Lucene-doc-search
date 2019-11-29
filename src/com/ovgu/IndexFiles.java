@@ -2,7 +2,6 @@ package com.ovgu;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,11 +12,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
-//import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.LongPoint;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -35,13 +33,14 @@ public class IndexFiles {
 
 	private String indexLoc = "./";
 	private String docsLoc  = "./";
+	private static List<Path> filesList = new ArrayList<Path>();
 
 	IndexFiles(String indexLoc, String docsLoc) {
 		this.indexLoc = indexLoc;
 		this.docsLoc = docsLoc;
 	}
 
-	private  static  String[] allowedFiles= {"txt","html","htm"};
+	private  static  String[] allowedFiles= {"txt","html"};
 
 	public int generateIndex() {
 
@@ -54,14 +53,13 @@ public class IndexFiles {
 			System.exit(1);
 		}
 
-		Date start = new Date();
 		try {
-			System.out.println("Indexing to directory '" + indexPath + "'...");
+			System.out.println("Creating index at >>> '" + indexPath + "'");
 
 			Directory dir = FSDirectory.open(Paths.get(indexPath));
-			
+
 			// CustomStemmerAnalyzer stems the words in the document before adding them to the index 
-			
+
 			IndexWriterConfig iwc = new IndexWriterConfig(new CustomStemmerAnalyzer());
 
 			iwc.setOpenMode(OpenMode.CREATE);
@@ -76,13 +74,21 @@ public class IndexFiles {
 
 			writer.close();
 
-			Date end = new Date();
-			System.out.println(end.getTime() - start.getTime() + " total milliseconds");
-
 		} catch (IOException e) {
 			System.out.println(" caught a " + e.getClass() +
 					"\n with message: " + e.getMessage());
 		}
+
+		// prints the list of all indexed documents
+		System.out.println ("\n\nDocuments added to index\n\n");
+
+		Iterator<Path> iterator = filesList.iterator();
+		while(iterator.hasNext()) {
+			System.out.println (">> "+iterator.next());
+		}
+
+		System.out.println("\n\nTotal indexed documents :"+filesList.size()+"\n\n");
+
 		return 0;
 	}
 
@@ -110,19 +116,26 @@ public class IndexFiles {
 			indexDoc(writer, path, Files.getLastModifiedTime(path).toMillis());
 		}
 	}
-	
-	
-	
+
+
+
 	static Boolean IsTextOrHtmlFile(String FilePath) {
-		return FilePath.toLowerCase().endsWith(allowedFiles[0])||FilePath.toLowerCase().endsWith(allowedFiles[1])||FilePath.toLowerCase().endsWith(allowedFiles[2]);
+		return FilePath.toLowerCase().endsWith(allowedFiles[0])||FilePath.toLowerCase().endsWith(allowedFiles[1]);
 	}
 
 	static Boolean IsHtmlFile(String FilePath) {
-		return FilePath.toLowerCase().endsWith(allowedFiles[1])||FilePath.toLowerCase().endsWith(allowedFiles[2]);
+		return FilePath.toLowerCase().endsWith(allowedFiles[1]);
 	}
-	
-	
-	/** Indexes a single document */
+
+
+	/**
+	 * This method indexes one document.
+	 * 
+	 * @param writer
+	 * @param file
+	 * @param lastModified
+	 * @throws IOException
+	 */
 	static void indexDoc(IndexWriter writer, Path file, long lastModified) throws IOException {
 
 		if(IsTextOrHtmlFile(file.toString())) {
@@ -134,7 +147,6 @@ public class IndexFiles {
 					Field pathField = new StringField("path", file.toString(), Field.Store.YES);
 					doc.add(pathField);
 
-//					System.out.println(Utilities.LongToDate(lastModified));
 					doc.add(new StringField("modified", Utilities.LongToDate(lastModified),Field.Store.YES));
 
 					// if its a html document do the following 
@@ -142,6 +154,7 @@ public class IndexFiles {
 						Tidy tidy = new Tidy();
 						tidy.setQuiet(true);
 						tidy.setShowWarnings(false);
+						tidy.setShowErrors(0);
 						org.w3c.dom.Document root = tidy.parseDOM(stream, null);
 						Element rawDoc = root.getDocumentElement();
 						JTidyHTMLHandler handler=new JTidyHTMLHandler();
@@ -150,32 +163,34 @@ public class IndexFiles {
 						String body = "";
 						String title;
 						String titleAndBody;
-						
+
 						try {
-						body = handler.getBody(rawDoc);
+							body = handler.getBody(rawDoc);
 						}
 						catch(Exception e) {
-						body = "Unreadble";	
+							body = "Unreadble";	
 						}
-						title=handler.getTitle(rawDoc);
-						summary = handler.getSummary(rawDoc);
-						
-						titleAndBody = body; 
-						
-						System.out.println(summary);
+						try {
+							title=handler.getTitle(rawDoc);							}
+						catch(Exception e) {
+							title = "Unreadble";	
+						}
+						try {
+							summary = handler.getSummary(rawDoc);
+						}
+						catch(Exception e) {
+							summary = "Unreadble";	
+						}
+
+						titleAndBody = title+" "+body; 
+
 						doc.add(new StringField("body", body, Field.Store.YES));
 						doc.add(new StringField("summary", summary, Field.Store.YES));
 						doc.add(new StringField("title", title, Field.Store.YES));
-//						InputStream stream2 = new ByteArrayInputStream((title).getBytes(StandardCharsets.UTF_8));
-//						//doc.add(new TextField("contents",new BufferedReader(str), Field.Store.YES));
-//						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream2, StandardCharsets.UTF_8))));
-						
 						InputStream stream3 = new ByteArrayInputStream((titleAndBody).getBytes(StandardCharsets.UTF_8));
-						//doc.add(new TextField("contents",new BufferedReader(str), Field.Store.YES));
 						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream3, StandardCharsets.UTF_8))));
-						
 						doc.add(new StringField("type", "html", Field.Store.YES));
-						
+
 					}
 					else {
 						doc.add(new StringField("type", "txt", Field.Store.YES));
@@ -184,17 +199,13 @@ public class IndexFiles {
 					}
 
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
-						// New index, so we just add the document (no old document can be there):
-						System.out.println("adding " + file);
 						try {
-						writer.addDocument(doc);
+							writer.addDocument(doc);
+							filesList.add(file);
 						}
 						catch (Exception e) {
-							System.out.println("ERROR ADDING FILE");
 						}
 					} else {
-
-						System.out.println("updating " + file);
 						writer.updateDocument(new Term("path", file.toString()), doc);
 					}
 				}

@@ -7,74 +7,74 @@ import org.w3c.dom.Text;
 
 public class JTidyHTMLHandler {
 
-   
-    protected String getTitle(Element rawDoc) {
-        if (rawDoc == null) {
-            return null;
-        }
 
-        String title = "";
+	protected String getTitle(Element rawDoc) {
+		if (rawDoc == null) {
+			return null;
+		}
 
-        NodeList children = rawDoc.getElementsByTagName("title");
-        if (children.getLength() > 0) {
-            Element titleElement = ((Element) children.item(0));
-            Text text = (Text) titleElement.getFirstChild();
-            if (text != null) {
-                title = text.getData();
-            }
-        }
-        return title;
-    }
+		String title = "";
 
-    protected String getBody(Element rawDoc) {
-        if (rawDoc == null) {
-            return null;
-        }
+		NodeList children = rawDoc.getElementsByTagName("title");
+		if (children.getLength() > 0) {
+			Element titleElement = ((Element) children.item(0));
+			Text text = (Text) titleElement.getFirstChild();
+			if (text != null) {
+				title = text.getData();
+			}
+		}
+		return title;
+	}
 
-        String body = "";
-        NodeList children = rawDoc.getElementsByTagName("body");
-        if (children.getLength() > 0) {
-            body = getText(children.item(0));
-        }
-        return body;
-    }
-    
-    protected String getSummary(Element rawDoc) {
-        if (rawDoc == null) {
-            return null;
-        }
+	protected String getBody(Element rawDoc) {
+		if (rawDoc == null) {
+			return null;
+		}
 
-        String summary = "";
-        NodeList children = rawDoc.getElementsByTagName("summary");
-        if (children.getLength() > 0) {
-            summary = getText(children.item(0));
-        }
-        
-        if(summary.length()<1) {
-        	summary = getBody(rawDoc);
-        }
-        
-        if (summary.length()>100)
-        	return summary.substring(0,100);
-        else 
-        	return summary;
-    }
+		String body = "";
+		NodeList children = rawDoc.getElementsByTagName("body");
+		if (children.getLength() > 0) {
+			body = getText(children.item(0));
+		}
+		return body;
+	}
 
-    protected String getText(Node node) {
-        NodeList children = node.getChildNodes();
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < children.getLength(); i++) {
-            Node child = children.item(i);
-            switch (child.getNodeType()) {
-                case Node.ELEMENT_NODE:
-                    sb.append(getText(child));
-                    sb.append(" ");
-                    break;
-                case Node.TEXT_NODE:
-                    sb.append(((Text) child).getData());
-                    break;
-            }
-        }
-        return sb.toString();
-    }
+	protected String getSummary(Element rawDoc) {
+		if (rawDoc == null) {
+			return null;
+		}
+
+		String summary = "";
+		NodeList children = rawDoc.getElementsByTagName("summary");
+		if (children.getLength() > 0) {
+			summary = getText(children.item(0));
+		}
+
+		if(summary.length()<1) {
+			summary = getBody(rawDoc);
+		}
+
+		if (summary.length()>100)
+			return summary.substring(0,100);
+		else 
+			return summary;
+	}
+
+	protected String getText(Node node) {
+		NodeList children = node.getChildNodes();
+		StringBuffer sb = new StringBuffer();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+			switch (child.getNodeType()) {
+			case Node.ELEMENT_NODE:
+				sb.append(getText(child));
+				sb.append(" ");
+				break;
+			case Node.TEXT_NODE:
+				sb.append(((Text) child).getData());
+				break;
+			}
+		}
+		return sb.toString();
+	}
 }

@@ -12,8 +12,8 @@
 
 The code needs a single argument to run and that argument should be a path to the documents folder.
 
-#### You can find the executable compiled jar file in the folder "./exported file"
-You can run the file with the following command 
+
+You can run the jar file with the following command 
 ```
 java -jar indexerAndSearcher.jar <path_to_documents_folder>
 ```

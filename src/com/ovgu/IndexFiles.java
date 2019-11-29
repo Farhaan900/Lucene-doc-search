@@ -159,6 +159,7 @@ public class IndexFiles {
 						Element rawDoc = root.getDocumentElement();
 						JTidyHTMLHandler handler=new JTidyHTMLHandler();
 
+<<<<<<< HEAD:src/com/ovgu/IndexFiles.java
 						String summary;
 						String body = "";
 						String title;
@@ -190,6 +191,16 @@ public class IndexFiles {
 						InputStream stream3 = new ByteArrayInputStream((titleAndBody).getBytes(StandardCharsets.UTF_8));
 						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream3, StandardCharsets.UTF_8))));
 						doc.add(new StringField("type", "html", Field.Store.YES));
+=======
+						String summary = handler.getBody(rawDoc);
+						String title=handler.getTitle(rawDoc);
+
+						doc.add(new StringField("summary", summary,Field.Store.YES));
+						doc.add(new StringField("title", title,Field.Store.YES));
+						InputStream stream2 = new ByteArrayInputStream((summary).getBytes(StandardCharsets.UTF_8));
+						//doc.add(new TextField("contents",new BufferedReader(str), Field.Store.YES));
+						doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream2, StandardCharsets.UTF_8))));
+>>>>>>> master:src/lucene/IndexFiles.java
 
 					}
 					else {
@@ -199,11 +210,21 @@ public class IndexFiles {
 					}
 
 					if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
+<<<<<<< HEAD:src/com/ovgu/IndexFiles.java
 						try {
 							writer.addDocument(doc);
 							filesList.add(file);
 						}
 						catch (Exception e) {
+=======
+						// New index, so we just add the document (no old document can be there):
+						System.out.println("adding " + file);
+						try {
+						writer.addDocument(doc);
+						}
+						catch(Exception e) {
+							System.err.println(e);
+>>>>>>> master:src/lucene/IndexFiles.java
 						}
 					} else {
 						writer.updateDocument(new Term("path", file.toString()), doc);

@@ -1,4 +1,4 @@
-package lucene;
+package com.ovgu;
 
 public class Main {
 
@@ -8,9 +8,9 @@ public class Main {
 		String docLoc = "./";
 
 		//get the document path from command line 
-
 		if(args.length <= 0) {
 			System.out.println ("ERROR :: invalid arguments : enter the path to the document directory");
+			System.exit(0);
 		}
 		else if (args.length > 1) {
 			System.out.println ("ERROR :: too many arguments : enter only the path to the document directory");
@@ -20,15 +20,12 @@ public class Main {
 		}
 
 		//call the indexer
-
 		IndexFiles indexer = new IndexFiles(indexLoc,docLoc);
 
 		//finish indexing
-
 		indexer.generateIndex();
 
 		//show query prompt
-
 		SearchFiles searcher = new SearchFiles(indexLoc);
 
 		try {

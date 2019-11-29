@@ -20,3 +20,5 @@ java -jar indexerAndSearcher.jar <path_to_documents_folder>
 
 The output is in a tabular format. You might need a wide screen to view it in proper format.
 For html files, it also displays the title and a summary in two new lines. If the html file doesnt have a summary tag then it prints the first 100 characters of its body.
+
+#### You can find files for testing in the "./test-docs" folder

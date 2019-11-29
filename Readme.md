@@ -8,11 +8,11 @@
 * lucene.queries-8.3.0.jar
 * lucene-queryparser-8.3.0.jar
 
-###### the "./jar files" folder 
+#### the "./jar files" folder 
 
 The code needs a single argument to run and that argument should be a path to the documents folder.
 
-###### You can find a jar file in the folder "./exported file"
+#### You can find the executable compiled jar file in the folder "./exported file"
 You can run the file with the following command 
 ```
 java -jar indexerAndSearcher.jar <path_to_documents_folder>

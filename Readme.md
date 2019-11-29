@@ -8,7 +8,7 @@
 * lucene.queries-8.3.0.jar
 * lucene-queryparser-8.3.0.jar
 
-#### the "./jar files" folder 
+#### You can find all the "./jar files" folder 
 
 The code needs a single argument to run and that argument should be a path to the documents folder.
 
